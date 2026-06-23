@@ -27,11 +27,23 @@ Prints path to a markdown file. **Read it.**
 
 Extracts timestamped keyframes so the AI sees the video, not just hears it. Frame filenames = `t_HH-MM-SS.png`, so each image aligns to the transcript and chapters by timestamp.
 
+**Two modes:**
+
 ```bash
-~/.claude/skills/youtube-content-study/scripts/frames.sh "<youtube-url>" [max_frames]
+# interval mode (default): N frames spread EVENLY across the duration
+scripts/frames.sh "<url>" [N]            # N default 24
+
+# scene mode: a frame on EVERY visual change (cut, slide, UI switch)
+scripts/frames.sh "<url>" scene [thresh] # thresh 0..1, default 0.3
 ```
 
-Default `max_frames=24`. Prints the frames dir. **Read each frame image** (Read tool renders them visually). Correlate: frame at `t_00-03-12.png` ↔ transcript line near 3:12 ↔ chapter covering that time.
+**Which one:**
+- **interval** — cheap, predictable count, but *blind to changes between samples*. A 17-min video at N=14 = 1 frame per ~72s; anything that appears and disappears inside that gap is missed. Good for talking-head / steady-shot videos.
+- **scene** — catches every meaningful visual change regardless of timing, no blind spots. Frame count is driven by the content (a slide-heavy screencast yields many; lower `thresh` → more sensitive → more frames). Use this when **every small step changes the screen** (demos, tutorials, dashboards, slides). Cost: decodes the whole video, slower, frame count unpredictable.
+
+Rule of thumb: **screencast / demo / slides → `scene`. Vlog / interview / single shot → interval.**
+
+Prints the frames dir. **Read each frame image** (Read tool renders them visually). Correlate: frame at `t_00-03-12.png` ↔ transcript line near 3:12 ↔ chapter covering that time.
 
 ### Step 3 — comprehensive understanding
 
